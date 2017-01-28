@@ -28,7 +28,7 @@ play.modules.enabled  += "com.github.tuxBurner.jobs.JobModule"
 To enable logging or change the level you can configure the logger in your *conf/logback.xml*
 
 ```xml
-<logger name="modules.jobs.JobModule" level="Debug" />
+<logger name="com.github.tuxBurner.jobs.JobModule" level="Debug" />
 ```
 
 

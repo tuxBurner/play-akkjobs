@@ -15,7 +15,7 @@ public class JobModule extends AbstractModule {
   /**
    * The Logger for this Module.
    * Can be configured in your conf/logback.xml
-   * &lt;logger name="modules.jobs.JobModule" level="Debug" /&gt;
+   * &lt;logger name="com.github.tuxBurner.jobs.JobModule" level="Debug" /&gt;
    */
   public static Logger.ALogger LOGGER = Logger.of(JobModule.class);
 

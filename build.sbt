@@ -1,6 +1,6 @@
 name := "play-akkajobs"
 
-version := "1.0.1-SNAPSHOT"
+version := "1.0.1"
 
 organization := "com.github.tuxBurner"
 

@@ -1,6 +1,7 @@
 package com.github.tuxBurner.jobs;
 
 import akka.actor.ActorSystem;
+import akka.actor.Cancellable;
 import org.apache.commons.lang3.time.DateUtils;
 import play.libs.Time.CronExpression;
 import scala.concurrent.duration.Duration;
@@ -38,6 +39,11 @@ public abstract class AbstractAkkaJob implements Runnable {
    */
   private Date nextFireDate;
 
+  /**
+   * When the job runs this is the cancallable
+   */
+  private Cancellable cancellable;
+
   public AbstractAkkaJob(final ActorSystem actorSystem) throws JobException {
 
     runState = EJobRunState.STOPPED;
@@ -60,15 +66,23 @@ public abstract class AbstractAkkaJob implements Runnable {
       return;
     }
 
+
+
     Date now = new Date();
-    final long nextInterval = cronExpression.getNextInterval(now);
+
+
+    long nextInterval;
+    if(nextFireDate == null && isSubmittedImmediately() == true) {
+      nextInterval = 0;
+    } else {
+      nextInterval = cronExpression.getNextInterval(now);
+    }
 
     nextFireDate = DateUtils.addMilliseconds(now, (int) nextInterval);
 
-
     final FiniteDuration duration = Duration.create(nextInterval, TimeUnit.MILLISECONDS);
     runState = EJobRunState.SCHEDULED;
-    actorSystem.scheduler().scheduleOnce(duration, this, actorSystem.dispatcher());
+    cancellable = actorSystem.scheduler().scheduleOnce(duration, this, actorSystem.dispatcher());
 
     if(LOGGER.isDebugEnabled() == true) {
       LOGGER.debug(this.getClass().getName()+" job is running again in: "+duration.toString()+" @ "+nextFireDate);
@@ -118,6 +132,34 @@ public abstract class AbstractAkkaJob implements Runnable {
    */
   public abstract void runInternal();
 
+  /**
+   * This is called when the {@link AbstractAkkaJob#stopJob()} is called.
+   * You can override this method in your implementation if you need to.
+   */
+  public void stopInternalJob() {
+    // noop
+  }
+
+  /**
+   * Stops the current job by calling the {@link Cancellable}
+   */
+  public void stopJob() {
+    if(cancellable == null) {
+      LOGGER.info("Not stopping the job: "+this.getClass().getName()+" no cancellable found.");
+      return;
+    }
+
+    if(cancellable.isCancelled() == true) {
+      return;
+    }
+
+    // some internal clean up by the job needed ?
+    stopInternalJob();
+
+    LOGGER.info("Stop for job: "+this.getClass().getName()+" called.");
+    cancellable.cancel();
+  }
+
   public CronExpression getCronExpression() {
     return cronExpression;
   }
@@ -148,5 +190,13 @@ public abstract class AbstractAkkaJob implements Runnable {
 
   public void setNextFireDate(Date nextFireDate) {
     this.nextFireDate = nextFireDate;
+  }
+
+  /**
+   * When set to true the job is submitted immediately
+   * @return true when the job should be executed when it is constructed the first time, false when not.
+   */
+  public boolean isSubmittedImmediately() {
+    return false;
   }
 }

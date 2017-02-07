@@ -5,7 +5,7 @@ This is a simple Play 2.5 module, which allows you to manage jobs.
 
 ## Installation (using sbt)
 
-You will need to add the following resolver in your `project/Build.scala` file:
+You will need to add the following resolver in your `build.sbt` file:
 
 ```scala
 resolvers += "tuxburner.github.io" at "http://tuxburner.github.io/repo"
@@ -14,7 +14,7 @@ resolvers += "tuxburner.github.io" at "http://tuxburner.github.io/repo"
 Add a dependency on the following artifact:
 
 ```scala
-libraryDependencies += "com.github.tuxBurner" %% "play-akkajobs" % "1.0.0"
+libraryDependencies += "com.github.tuxBurner" %% "play-akkajobs" % "1.0.1"
 ```
 
 Activate the module in the `conf/application.conf` like this:

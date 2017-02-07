@@ -7,6 +7,8 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+import play.inject.ApplicationLifecycle;
+import play.libs.F;
 
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
@@ -34,8 +36,17 @@ public class JobClassLoader {
   private final ActorSystem actorSystem;
 
   @Inject
-  JobClassLoader(final ActorSystem actorSystem) {
+  JobClassLoader(final ActorSystem actorSystem, final ApplicationLifecycle lifecycle) {
     this.actorSystem = actorSystem;
+
+    // when the application is stopping shut down the jobs  to prevent 
+    lifecycle.addStopHook(() -> {
+      for (AbstractAkkaJob job : jobs) {
+        job.stopJob();
+      }
+      return F.Promise.pure(null);
+    });
+
     onStart();
   }
 

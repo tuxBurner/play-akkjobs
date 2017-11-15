@@ -8,13 +8,13 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import play.inject.ApplicationLifecycle;
-import play.libs.F;
 
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -23,12 +23,13 @@ import java.util.stream.Collectors;
  * @author tuxburner
  */
 @Singleton
-public class JobClassLoader {
+public class JobClassLoader
+{
 
   /**
    * Set of the jobs which where found and loaded
    */
-  public final Set<AbstractAkkaJob> jobs = new HashSet<AbstractAkkaJob>();
+  public final Set<AbstractAkkaJob> jobs = new HashSet<>();
 
   /**
    * The {@link ActorSystem} handling the jobs.
@@ -36,7 +37,8 @@ public class JobClassLoader {
   private final ActorSystem actorSystem;
 
   @Inject
-  JobClassLoader(final ActorSystem actorSystem, final ApplicationLifecycle lifecycle) {
+  JobClassLoader(final ActorSystem actorSystem, final ApplicationLifecycle lifecycle)
+  {
     this.actorSystem = actorSystem;
 
     // when the application is stopping shut down the jobs  to prevent 
@@ -44,17 +46,19 @@ public class JobClassLoader {
       for (AbstractAkkaJob job : jobs) {
         job.stopJob();
       }
-      return F.Promise.pure(null);
+
+      return CompletableFuture.completedFuture(null);
     });
 
     onStart();
   }
 
-  public void onStart() {
+  public void onStart()
+  {
     final Reflections reflections = new Reflections(
-        new ConfigurationBuilder().setUrls(
-            ClasspathHelper.forClassLoader()).setScanners(
-            new TypeAnnotationsScanner(), new SubTypesScanner()));
+      new ConfigurationBuilder().setUrls(
+        ClasspathHelper.forClassLoader()).setScanners(
+        new TypeAnnotationsScanner(), new SubTypesScanner()));
     Set<Class<? extends AbstractAkkaJob>> classes = reflections.getSubTypesOf(AbstractAkkaJob.class);
 
     // filter out the once we dont want to instantiate

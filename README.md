@@ -1,6 +1,6 @@
 # Play akka job library
 
-This is a simple Play 2.5 module, which allows you to manage jobs.
+This is a simple Play 2.6 module, which allows you to manage jobs.
 
 
 ## Installation (using sbt)

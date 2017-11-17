@@ -14,7 +14,7 @@ resolvers += "tuxburner.github.io" at "http://tuxburner.github.io/repo"
 Add a dependency on the following artifact:
 
 ```scala
-libraryDependencies += "com.github.tuxBurner" %% "play-akkajobs" % "2.6.0"
+libraryDependencies += "com.github.tuxBurner" %% "play-akkajobs" % "2.6.1"
 ```
 
 Activate the module in the `conf/application.conf` like this:

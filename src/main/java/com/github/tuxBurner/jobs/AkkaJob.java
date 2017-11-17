@@ -7,9 +7,6 @@ import java.lang.annotation.Target;
 
 /**
  * This Annotation is for creating a Job in the akka stack
- */
-
-/**
  * @author tuxburner
  * 
  */

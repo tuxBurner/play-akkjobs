@@ -2,7 +2,6 @@ package com.github.tuxBurner.jobs;
 
 import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
-import org.apache.commons.lang3.time.DateUtils;
 import play.libs.Time.CronExpression;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
@@ -62,25 +61,24 @@ public abstract class AbstractAkkaJob implements Runnable {
     }
 
     if(cronExpression == null) {
-      LOGGER.error("No Cronexpression set at: "+this.getClass().getName());
+      LOGGER.error("No Cron expression set at: "+this.getClass().getName());
       return;
     }
 
 
+    final Date now = new Date();
 
-    Date now = new Date();
+    Date nextExecuteTime = now;
 
-
-    long nextInterval;
-    if(nextFireDate == null && isSubmittedImmediately() == true) {
-      nextInterval = 0;
-    } else {
-      nextInterval = cronExpression.getNextInterval(now);
+    // no next fire date or is not supposed to be executed immediately
+    if(nextFireDate != null || isSubmittedImmediately() == false) {
+      nextExecuteTime = cronExpression.getNextValidTimeAfter(now);
     }
 
-    nextFireDate = DateUtils.addMilliseconds(now, (int) nextInterval);
+    // set the date when to execute the fire date
+    nextFireDate = nextExecuteTime;
 
-    final FiniteDuration duration = Duration.create(nextInterval, TimeUnit.MILLISECONDS);
+    final FiniteDuration duration = Duration.create(nextFireDate.getTime() - now.getTime(), TimeUnit.MILLISECONDS);
     runState = EJobRunState.SCHEDULED;
     cancellable = actorSystem.scheduler().scheduleOnce(duration, this, actorSystem.dispatcher());
 
@@ -94,7 +92,7 @@ public abstract class AbstractAkkaJob implements Runnable {
 
     // check if the state is not running
     if(EJobRunState.RUNNING.equals(runState) == true) {
-      LOGGER.warn(this.getClass().getName()+" Job not started because it is still in run mode.");
+      LOGGER.warn(this.getClass().getName()+" job not started because it is still in run mode.");
       scheduleJob();
       return;
     }
@@ -109,7 +107,7 @@ public abstract class AbstractAkkaJob implements Runnable {
       runInternal();
       runState = EJobRunState.STOPPED;
     } catch (final Exception e) {
-      LOGGER.error("An error happend in the internal implementation of the job: " + this.getClass().getName(), e);
+      LOGGER.error("An error happened in the internal implementation of the job: " + this.getClass().getName(), e);
       runState = EJobRunState.ERROR;
       if (restartOnFail == false) {
         runState = EJobRunState.KILLED;

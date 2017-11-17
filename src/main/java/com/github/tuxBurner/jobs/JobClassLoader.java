@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
  * @author tuxburner
  */
 @Singleton
-public class JobClassLoader
-{
+public class JobClassLoader {
 
   /**
    * Set of the jobs which where found and loaded
@@ -37,8 +36,7 @@ public class JobClassLoader
   private final ActorSystem actorSystem;
 
   @Inject
-  JobClassLoader(final ActorSystem actorSystem, final ApplicationLifecycle lifecycle)
-  {
+  JobClassLoader(final ActorSystem actorSystem, final ApplicationLifecycle lifecycle) {
     this.actorSystem = actorSystem;
 
     // when the application is stopping shut down the jobs  to prevent 
@@ -53,12 +51,11 @@ public class JobClassLoader
     onStart();
   }
 
-  public void onStart()
-  {
+  public void onStart() {
     final Reflections reflections = new Reflections(
-      new ConfigurationBuilder().setUrls(
-        ClasspathHelper.forClassLoader()).setScanners(
-        new TypeAnnotationsScanner(), new SubTypesScanner()));
+        new ConfigurationBuilder().setUrls(
+            ClasspathHelper.forClassLoader()).setScanners(
+            new TypeAnnotationsScanner(), new SubTypesScanner()));
     Set<Class<? extends AbstractAkkaJob>> classes = reflections.getSubTypesOf(AbstractAkkaJob.class);
 
     // filter out the once we dont want to instantiate
@@ -86,17 +83,10 @@ public class JobClassLoader
 
       } catch (final NoSuchMethodException e) {
         JobModule.LOGGER.error("Could not find default constructor with no parameters in: " + clazz, e);
-      } catch (final SecurityException e) {
-        JobModule.LOGGER.error("Error while initializing class: " + clazz, e);
-      } catch (final InstantiationException e) {
-        JobModule.LOGGER.error("Error while initializing class: " + clazz, e);
-      } catch (final IllegalAccessException e) {
-        JobModule.LOGGER.error("Error while initializing class: " + clazz, e);
-      } catch (final IllegalArgumentException e) {
-        JobModule.LOGGER.error("Error while initializing class: " + clazz, e);
-      } catch (final InvocationTargetException e) {
+      } catch (final SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         JobModule.LOGGER.error("Error while initializing class: " + clazz, e);
       }
+
     }
   }
 }

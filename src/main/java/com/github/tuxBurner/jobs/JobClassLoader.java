@@ -82,17 +82,10 @@ public class JobClassLoader {
 
       } catch (final NoSuchMethodException e) {
         JobModule.LOGGER.error("Could not find default constructor with no parameters in: " + clazz, e);
-      } catch (final SecurityException e) {
-        JobModule.LOGGER.error("Error while initializing class: " + clazz, e);
-      } catch (final InstantiationException e) {
-        JobModule.LOGGER.error("Error while initializing class: " + clazz, e);
-      } catch (final IllegalAccessException e) {
-        JobModule.LOGGER.error("Error while initializing class: " + clazz, e);
-      } catch (final IllegalArgumentException e) {
-        JobModule.LOGGER.error("Error while initializing class: " + clazz, e);
-      } catch (final InvocationTargetException e) {
+      } catch (final SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         JobModule.LOGGER.error("Error while initializing class: " + clazz, e);
       }
+
     }
   }
 }

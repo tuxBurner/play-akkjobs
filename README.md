@@ -14,7 +14,7 @@ resolvers += "tuxburner.github.io" at "http://tuxburner.github.io/repo"
 Add a dependency on the following artifact:
 
 ```scala
-libraryDependencies += "com.github.tuxBurner" %% "play-akkajobs" % "2.6.1"
+libraryDependencies += "com.github.tuxBurner" %% "play-akkajobs" % "2.9.0"
 ```
 
 Activate the module in the `conf/application.conf` like this:
@@ -43,7 +43,7 @@ The cron expressions you can use are documented under: http://www.quartz-schedul
 
 ### Annotated Job
 
-Just create a class like this  and you will have a job which is called every 15 seconds.
+Just create a class like this, and you will have a job which is called every 15 seconds.
 
 ```java
 package com.github.tuxBurner.jobs;

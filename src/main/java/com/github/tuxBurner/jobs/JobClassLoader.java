@@ -52,6 +52,7 @@ public class JobClassLoader {
   }
 
   public void onStart() {
+
     final Reflections reflections = new Reflections(
         new ConfigurationBuilder().setUrls(
             ClasspathHelper.forClassLoader()).setScanners(
